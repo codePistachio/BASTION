@@ -1,0 +1,40 @@
+﻿@page "/fetchlogs"
+@using System.Threading.Tasks
+@using Microsoft.AspNetCore.Components
+@using System.IO
+@using SharpCifs.Smb
+@using BASTION.Resources.Helper
+
+<h3>Fetch Logs</h3>
+
+<button @onclick="FetchLogsAsync" class="btn btn-primary">Fetch Logs</button>
+
+@if (Logs != null)
+{
+    <h4>Logs</h4>
+    <pre>@Logs</pre>
+}
+
+@code {
+    private string Logs { get; set; }
+
+    private const string SmbPath = @"\\client-ip-address\shared-folder";
+    private const string Username = "revan-pc\\homie";
+    private const string Password = "";
+
+    private async Task FetchLogsAsync()
+    {
+        var smbHelper = new SmbHelper(SmbPath, Username, Password);
+
+        try
+        {
+            // Example file to fetch
+            var fileName = "logfile.txt";
+            Logs = await smbHelper.GetFileContentsAsync(fileName);
+        }
+        catch (ApplicationException ex)
+        {
+            Logs = $"Error fetching logs: {ex.Message}";
+        }
+    }
+}
